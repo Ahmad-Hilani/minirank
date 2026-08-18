@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../auth.php';
+
+$userId = auth_require();
 
 $db = db();
 
@@ -15,8 +17,14 @@ if ($keywordId <= 0) {
     exit;
 }
 
-$kw = $db->prepare('SELECT id, phrase, url FROM keywords WHERE id = :id');
+$kw = $db->prepare('
+    SELECT k.id, k.phrase, k.url, k.project_id
+    FROM keywords k
+    JOIN projects p ON p.id = k.project_id
+    WHERE k.id = :id AND p.user_id = :uid
+');
 $kw->bindValue(':id', $keywordId, SQLITE3_INTEGER);
+$kw->bindValue(':uid', $userId, SQLITE3_INTEGER);
 $kwRow = $kw->execute()->fetchArray(SQLITE3_ASSOC);
 
 if (!$kwRow) {

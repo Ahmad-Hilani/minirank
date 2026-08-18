@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -11,10 +11,33 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+csrf_verify();
+
+$userId = auth_require();
+
 $db = db();
 $today = date('Y-m-d');
 
-$keywords = $db->query('SELECT id FROM keywords')->fetchAll(SQLITE3_ASSOC);
+$projectId = isset($_GET['project_id']) ? (int) $_GET['project_id'] : null;
+
+if ($projectId) {
+    $stmt = $db->prepare('
+        SELECT k.id FROM keywords k
+        JOIN projects p ON p.id = k.project_id
+        WHERE k.project_id = :pid AND p.user_id = :uid
+    ');
+    $stmt->bindValue(':pid', $projectId, SQLITE3_INTEGER);
+    $stmt->bindValue(':uid', $userId, SQLITE3_INTEGER);
+} else {
+    $stmt = $db->prepare('
+        SELECT k.id FROM keywords k
+        JOIN projects p ON p.id = k.project_id
+        WHERE p.user_id = :uid
+    ');
+    $stmt->bindValue(':uid', $userId, SQLITE3_INTEGER);
+}
+
+$keywords = $stmt->execute()->fetchAll(SQLITE3_ASSOC);
 
 $insertPos = $db->prepare('INSERT INTO positions (keyword_id, position, checked_at) VALUES (:kid, :pos, :date)');
 

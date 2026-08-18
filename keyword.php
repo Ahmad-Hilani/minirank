@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/auth.php';
+
+$userId = auth_require();
 
 $keywordId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -12,8 +14,14 @@ if ($keywordId <= 0) {
 
 $db = db();
 
-$kw = $db->prepare('SELECT id, phrase, url FROM keywords WHERE id = :id');
+$kw = $db->prepare('
+    SELECT k.id, k.phrase, k.url, k.project_id
+    FROM keywords k
+    JOIN projects p ON p.id = k.project_id
+    WHERE k.id = :id AND p.user_id = :uid
+');
 $kw->bindValue(':id', $keywordId, SQLITE3_INTEGER);
+$kw->bindValue(':uid', $userId, SQLITE3_INTEGER);
 $kwRow = $kw->execute()->fetchArray(SQLITE3_ASSOC);
 
 if (!$kwRow) {
@@ -25,10 +33,10 @@ $stmt = $db->prepare('SELECT position, checked_at FROM positions WHERE keyword_i
 $stmt->bindValue(':kid', $keywordId, SQLITE3_INTEGER);
 $positions = $stmt->execute()->fetchAll(SQLITE3_ASSOC);
 
-function esc(string $s): string
-{
-    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
-}
+$proj = $db->prepare('SELECT name FROM projects WHERE id = :pid');
+$proj->bindValue(':pid', (int) $kwRow['project_id'], SQLITE3_INTEGER);
+$projRow = $proj->execute()->fetchArray(SQLITE3_ASSOC);
+$projectName = $projRow ? $projRow['name'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,6 +52,10 @@ function esc(string $s): string
         <a href="index.php" class="back-link">&larr; Back</a>
         <h1><?php echo esc($kwRow['phrase']); ?></h1>
     </div>
+
+    <p style="margin-bottom:0.5rem; font-size:0.85rem; color:var(--muted);">
+        Project: <strong><?php echo esc($projectName); ?></strong>
+    </p>
 
     <?php if ($kwRow['url']): ?>
     <p style="margin-bottom:1rem; color:var(--muted); font-size:0.9rem;">
