@@ -72,8 +72,20 @@ $csrf = csrf_token();
         </div>
     </div>
 
-    <div class="search-bar">
+    <div class="filter-bar">
         <input type="text" id="search" placeholder="Search keywords..." oninput="filterTable()">
+        <select id="filterPosition" onchange="filterTable()">
+            <option value="0">All Positions</option>
+            <option value="10">Top 10</option>
+            <option value="20">Top 20</option>
+            <option value="50">Top 50</option>
+        </select>
+        <select id="filterMovement" onchange="filterTable()">
+            <option value="all">All Movement</option>
+            <option value="improved">Improved</option>
+            <option value="declined">Declined</option>
+            <option value="stable">Stable</option>
+        </select>
     </div>
 
     <div class="table-wrap">
@@ -108,7 +120,7 @@ $csrf = csrf_token();
                         ?>
                     </td>
                     <td class="pos-cell" data-kid="<?php echo (int) $kw['id']; ?>">--</td>
-                    <td class="trend-cell" data-kid="<?php echo (int) $kw['id']; ?>">--</td>
+                    <td class="trend-cell" data-kid="<?php echo (int) $kw['id']; ?>" data-trend="">--</td>
                     <td>
                         <div class="actions">
                             <button class="btn btn-sm btn-ghost" onclick="openEditModal(<?php echo (int) $kw['id']; ?>, '<?php echo esc($kw['phrase']); ?>', '<?php echo esc($kw['url']); ?>')">Edit</button>
@@ -190,10 +202,24 @@ function switchProject() {
 
 function filterTable() {
     var q = document.getElementById('search').value.toLowerCase();
+    var maxPos = parseInt(document.getElementById('filterPosition').value) || 0;
+    var movement = document.getElementById('filterMovement').value;
     var rows = document.querySelectorAll('#kwTable tbody tr');
+
     rows.forEach(function(r) {
         var text = r.querySelector('td').textContent.toLowerCase();
-        r.style.display = text.indexOf(q) === -1 ? 'none' : '';
+        var matchSearch = text.indexOf(q) !== -1;
+
+        var posCell = r.querySelector('.pos-cell');
+        var posText = posCell.textContent.replace('#', '');
+        var pos = parseInt(posText) || 999;
+        var matchPos = maxPos === 0 || pos <= maxPos;
+
+        var trendCell = r.querySelector('.trend-cell');
+        var trend = trendCell.getAttribute('data-trend') || '';
+        var matchMovement = movement === 'all' || trend === movement;
+
+        r.style.display = (matchSearch && matchPos && matchMovement) ? '' : 'none';
     });
 }
 
@@ -369,10 +395,13 @@ function loadTrends() {
 
                 if (diff < -2) {
                     trendCell.innerHTML = '<span class="trend trend-up">Improved</span>';
+                    trendCell.setAttribute('data-trend', 'improved');
                 } else if (diff > 2) {
                     trendCell.innerHTML = '<span class="trend trend-down">Declined</span>';
+                    trendCell.setAttribute('data-trend', 'declined');
                 } else {
                     trendCell.innerHTML = '<span class="trend trend-stable">Stable</span>';
+                    trendCell.setAttribute('data-trend', 'stable');
                 }
             } else {
                 trendCell.textContent = '--';

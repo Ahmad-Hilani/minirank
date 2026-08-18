@@ -110,13 +110,17 @@ h1 {
     background: var(--card);
 }
 
-/* Search */
-.search-bar {
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 0.5rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
-.search-bar input {
-    width: 100%;
+.filter-bar input {
+    flex: 1;
+    min-width: 180px;
     padding: 0.6rem 0.85rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -124,9 +128,31 @@ h1 {
     background: var(--card);
 }
 
-.search-bar input:focus {
+.filter-bar input:focus {
     outline: 2px solid var(--primary);
     outline-offset: -1px;
+}
+
+.filter-bar select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    background: var(--card);
+}
+
+.filter-bar select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+}
+
+/* Chart */
+.chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 
 /* Table */
@@ -343,5 +369,14 @@ tr:last-child td {
     .actions {
         flex-direction: column;
         gap: 0.25rem;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+        width: 100%;
     }
 }
