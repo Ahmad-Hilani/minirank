@@ -1,0 +1,8 @@
+.git
+.gitignore
+minirank.db
+minirank.db-wal
+minirank.db-shm
+phpunit.phar
+tests
+*.md

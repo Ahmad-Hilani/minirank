@@ -1,2 +1,5 @@
 *.sqlite
 *.db
+*.db-wal
+*.db-shm
+phpunit.phar
