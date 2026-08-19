@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniRank — AI Process Document</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #f8f9fa; --card: #ffffff; --border: #dee2e6;
+            --text: #212529; --muted: #6c757d; --primary: #0d6efd;
+            --green: #198754; --red: #dc3545; --orange: #fd7e14;
+            --radius: 8px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+        h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+        h2 { font-size: 1.35rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); }
+        h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        p, li { font-size: 0.95rem; }
+        a { color: var(--primary); }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .badge-green { background: #d1e7dd; color: #0f5132; }
+        .badge-red { background: #f8d7da; color: #842029; }
+        .badge-blue { background: #cff4fc; color: #055160; }
+
+        .session-links { background: #e7f1ff; border: 1px solid #b6d4fe; border-radius: var(--radius); padding: 1.25rem; margin-bottom: 2rem; }
+        .session-links h2 { border: none; margin-bottom: 0.75rem; font-size: 1.1rem; }
+        .session-links ul { list-style: none; padding: 0; }
+        .session-links li { padding: 0.35rem 0; font-size: 0.9rem; }
+        .session-links li::before { content: "Session: "; font-weight: 600; }
+        .placeholder { background: #fff3cd; padding: 0.15rem 0.4rem; border-radius: 3px; font-family: monospace; font-size: 0.85rem; }
+
+        ul, ol { padding-left: 1.5rem; margin: 0.75rem 0; }
+        li { margin-bottom: 0.4rem; }
+        code { background: #f1f3f5; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.9rem; }
+        .mono { font-family: "SF Mono", "Fira Code", monospace; }
+
+        .prompt-card { border-left: 4px solid var(--primary); }
+        .prompt-card.failed { border-left-color: var(--red); }
+        .prompt-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+        .mistake { background: #fff5f5; border: 1px solid #fed7d7; border-radius: 4px; padding: 0.75rem; margin: 0.75rem 0; font-size: 0.9rem; }
+        .mistake strong { color: var(--red); }
+        .fix { background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 4px; padding: 0.75rem; margin: 0.75rem 0; font-size: 0.9rem; }
+        .fix strong { color: var(--green); }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .stat { text-align: center; padding: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+        .timeline { border-left: 3px solid var(--border); padding-left: 1.25rem; margin: 1rem 0; }
+        .timeline-item { margin-bottom: 1rem; position: relative; }
+        .timeline-item::before { content: ""; position: absolute; left: -1.55rem; top: 0.4rem; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+
+        footer { text-align: center; padding: 2rem 0 1rem; color: var(--muted); font-size: 0.8rem; }
+
+        @media (max-width: 640px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 1.4rem; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>MiniRank AI Process Document</h1>
+    <p class="subtitle">rankingCoach AI Assessment — Built with opencode + free AI models</p>
+
+    <div class="session-links">
+        <h2>opencode Session Links</h2>
+        <p style="margin-bottom:0.75rem; font-size:0.9rem;">Development was completed across 2 opencode sessions:</p>
+        <ul>
+            <li><span class="placeholder">https://opncd.ai/share/ViHZl2Zx</span></li>
+            <li><span class="placeholder">https://opncd.ai/share/oOft9Sbu</span></li>
+        </ul>
+    </div>
+
+    <section>
+        <h2>1. Plan</h2>
+
+        <div class="card">
+            <h3>Architectural Decisions</h3>
+            <ul>
+                <li><strong>Plain PHP, no framework.</strong> Free models have smaller context windows. A large framework scaffold (Laravel, Symfony) would consume context before writing any business logic. Plain PHP kept every file self-contained and reviewable.</li>
+                <li><strong>SQLite over MySQL.</strong> Zero setup — no Docker service needed for the DB, no credentials to manage. One file on disk. The assessment explicitly recommended SQLite for easiest reviewer setup.</li>
+                <li><strong>Separation of concerns.</strong> Files organized by responsibility: <code>db.php</code> (schema), <code>auth.php</code> (sessions + CSRF), <code>helpers.php</code> (testable logic), <code>api/*.php</code> (JSON endpoints), <code>*.php</code> (pages). Each file stays under ~120 lines, keeping context small.</li>
+                <li><strong>Server-rendered pages + lightweight AJAX.</strong> Initial page load renders HTML server-side (fast, no JS dependency). JavaScript only handles modals, search, and the refresh/trend AJAX calls. This kept the frontend simple without a build step.</li>
+                <li><strong>Incremental commits.</strong> Built one layer at a time: DB → seeder → API → frontend → auth → projects → stretch goals. Each layer was tested before moving on.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>What I Would Change in Hindsight</h3>
+            <ul>
+                <li><strong>Extract helpers.php earlier.</strong> The trend calculation was initially inline in JavaScript. Extracting it to a PHP function in <code>helpers.php</code> from the start would have made testing trivial and reduced duplication.</li>
+                <li><strong>Build the auth layer first.</strong> Adding auth after the UI was working meant rewriting queries to scope by user. Building auth → projects → keywords in order would have been cleaner.</li>
+                <li><strong>Use new sessions per feature.</strong> Some sessions got long and the model started losing context. Following the guide's advice more strictly (new session per feature) would have reduced debugging time.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Prompts &amp; Fixes</h2>
+
+        <div class="card prompt-card">
+            <div class="card-header">
+                <span class="badge badge-green">Successful</span>
+                <h3>Prompt 1: Backend Foundation</h3>
+            </div>
+            <div class="prompt-meta">Session: <a href="https://opncd.ai/share/ViHZl2Zx" target="_blank" rel="noopener">opencode session</a></div>
+            <p><strong>The prompt:</strong> "Create the SQLite database connection, seed script with 8 keywords × 30 days of positions, and CRUD API endpoints for keywords. All SQL must be parameterized."</p>
+            <p><strong>Why it mattered:</strong> This was the foundation. Getting the schema, parameterized queries, and REST endpoints right in one pass meant everything built on top was solid.</p>
+            <p><strong>What the AI got right:</strong> Clean schema with foreign keys, consistent <code>bindValue()</code> usage, proper HTTP status codes, JSON responses.</p>
+            <div class="fix"><strong>What I caught:</strong> The initial <code>DEFAULT (datetime('now'))</code> in the schema threw a PHP SQLite3 error. I caught it during testing and changed to <code>DEFAULT CURRENT_TIMESTAMP</code> for the keywords table and removed the default from positions (handled in application code).</div>
+        </div>
+
+        <div class="card prompt-card failed">
+            <div class="card-header">
+                <span class="badge badge-red">Failed / Divergent</span>
+                <h3>Prompt 2: Frontend with AJAX Refresh</h3>
+            </div>
+            <div class="prompt-meta">Session: <a href="https://opncd.ai/share/ViHZl2Zx" target="_blank" rel="noopener">opencode session</a></div>
+            <p><strong>The prompt:</strong> "Build the keyword list page with CRUD modals, search filter, trend indicators, and a Refresh Positions button that uses AJAX."</p>
+            <p><strong>What went wrong:</strong> The AI generated the refresh endpoint without CSRF protection and without scoping to the authenticated user. It also initially used <code>innerHTML</code> to insert trend text without escaping, though the content was hardcoded strings (not user input).</p>
+            <div class="mistake"><strong>Mistake caught:</strong> The refresh endpoint was a plain <code>POST</code> with no CSRF token verification — any external site could trigger position refreshes for a logged-in user. The endpoint also queried all keywords globally, not scoped to the user.</div>
+            <div class="fix"><strong>Fix applied:</strong> Added <code>csrf_verify()</code> to the refresh endpoint, added <code>X-CSRF-Token</code> header from the JavaScript side, and scoped the query to <code>p.user_id = :uid</code>. This was caught during the security review before committing.</div>
+        </div>
+
+        <div class="card prompt-card">
+            <div class="card-header">
+                <span class="badge badge-green">Successful</span>
+                <h3>Prompt 3: Auth + Multi-Project Architecture</h3>
+            </div>
+            <div class="prompt-meta">Session: <a href="https://opncd.ai/share/ViHZl2Zx" target="_blank" rel="noopener">opencode session</a></div>
+            <p><strong>The prompt:</strong> "Add user registration/login with hashed passwords and session management. Add CSRF protection. Add projects — each user owns projects, keywords belong to a project. Update all API endpoints to scope by user."</p>
+            <p><strong>Why it mattered:</strong> This was the most complex change — touching every existing file. The prompt was structured to list each file that needed updating.</p>
+            <p><strong>What the AI got right:</strong> Clean <code>auth.php</code> with <code>password_hash()</code>/<code>password_verify()</code>, <code>session_regenerate_id(true)</code> on login, CSRF token generation via <code>random_bytes(32)</code>, and <code>hash_equals()</code> for timing-safe comparison. All API queries were properly scoped with JOINs through the projects table.</p>
+            <div class="fix"><strong>What I caught:</strong> The seed script initially didn't create a demo user, making manual testing painful. I added demo user creation (<code>demo@minirank.dev / demo1234</code>) to the seeder and updated the README with credentials.</div>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Retrospective</h2>
+
+        <div class="stat-grid">
+            <div class="stat">
+                <div class="stat-value">~10h</div>
+                <div class="stat-label">Total development time</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">2</div>
+                <div class="stat-label">opencode sessions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">18</div>
+                <div class="stat-label">PHPUnit tests</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Source files</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Working with Free Models</h3>
+            <ul>
+                <li><strong>Context limits were real.</strong> Long sessions (30+ turns) caused the model to forget earlier decisions. Starting a new session per feature was essential.</li>
+                <li><strong>Rate limits (429 errors)</strong> happened occasionally. Switching from DeepSeek V4 Flash to Gemini Flash as fallback worked smoothly. Noted in the process doc.</li>
+                <li><strong>Free models produce plausible-looking but incorrect code</strong> more often than paid ones. Every diff had to be reviewed — the Review panel was used extensively.</li>
+                <li><strong>Small, focused prompts outperformed large ones.</strong> "Implement keyword CRUD with parameterized queries" beat "build the entire backend" by a wide margin.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Key Lessons</h3>
+            <ul>
+                <li><strong>Plan mode first.</strong> Agreeing the schema and architecture in Plan mode before generating code saved 30+ wasted requests.</li>
+                <li><strong>Security review is your job.</strong> The AI will happily write SQL injection and skip CSRF. Finding it is the candidate's responsibility — and the assessment notices when you do.</li>
+                <li><strong>Verify everything.</strong> Running the app after every step caught issues early. The trend calculation boundary test failure was caught this way.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Time Breakdown</h3>
+            <div class="timeline">
+                <div class="timeline-item"><strong>Day 1 (~2h):</strong> Planning, backend foundation (db, seed, API)</div>
+                <div class="timeline-item"><strong>Day 2 (~2h):</strong> Frontend (index, keyword, style, AJAX)</div>
+                <div class="timeline-item"><strong>Day 3 (~2h):</strong> Auth, projects, multi-user scoping</div>
+                <div class="timeline-item"><strong>Day 4 (~4h):</strong> Stretch goals, testing (PHPUnit, boundary tests, CSRF tests), Docker setup, README, process doc</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        MiniRank AI Process Document — rankingCoach Assessment 2026
+    </footer>
+
+</div>
+</body>
+</html>
